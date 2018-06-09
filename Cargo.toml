@@ -1,0 +1,7 @@
+[package]
+name = "randomize"
+version = "0.1.0"
+authors = ["mass10 <mass10.github@gmail.com>"]
+
+[dependencies]
+uuid = { version = "0.6", features = ["v4"] }
