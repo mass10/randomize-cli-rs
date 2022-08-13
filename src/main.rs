@@ -72,6 +72,11 @@ fn main() {
 
 	for e in &args[1..] {
 		let path = Path::new(e);
-		let _ = enumerate(path, &on_file_found);
+		let result = enumerate(path, &on_file_found);
+		if result.is_err() {
+			let error = result.err().unwrap();
+			println!("ERROR: {:?}", error);
+			break;
+		}
 	}
 }
