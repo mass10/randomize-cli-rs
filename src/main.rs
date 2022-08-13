@@ -1,6 +1,7 @@
 extern crate uuid;
 
 use std::ffi::OsStr;
+use std::io::Write;
 use std::path::Path;
 use uuid::Uuid;
 
@@ -32,7 +33,9 @@ fn input() -> String {
 
 /// 確認
 fn confirm_rename(left: &Path, right: &Path) -> bool {
-	println!("CONTINUE? {:?} >> {:?}", &left, &right);
+	println!("> RENAME {}\n>        {}", left.to_str().unwrap(), right.to_str().unwrap());
+	print!("CONTINUE? (y/N)> ");
+	std::io::stdout().flush().unwrap();
 	let line = input().to_uppercase();
 	if line == "Y" {
 		return true;
@@ -63,13 +66,14 @@ fn on_file_found(e: &Path) -> Result<(), Box<dyn std::error::Error>> {
 	};
 
 	let new_path = parent.join(&name).with_extension(ext);
-	println!("{}", new_path.as_os_str().to_str().unwrap());
 
 	if !confirm_rename(&e, &new_path) {
 		return Ok(());
 	}
 
 	std::fs::rename(e, new_path)?;
+
+	println!("RENAMED.");
 
 	return Ok(());
 }
@@ -79,12 +83,9 @@ fn on_file_found(e: &Path) -> Result<(), Box<dyn std::error::Error>> {
 /// # Arguments
 /// * `e` パス
 /// * `handler` ファイルハンドラー
-fn enumerate(
-	e: &Path,
-	handler: &dyn Fn(&Path) -> Result<(), Box<dyn std::error::Error>>,
-) -> Result<(), Box<dyn std::error::Error>> {
+fn enumerate(e: &Path, handler: &dyn Fn(&Path) -> Result<(), Box<dyn std::error::Error>>) -> Result<(), Box<dyn std::error::Error>> {
 	if !e.exists() {
-		println!("[TRACE] invalid path {}", e.to_str().unwrap());
+		println!("INVALID PATH {}", e.to_str().unwrap());
 		return Ok(());
 	} else if e.is_dir() {
 		let it = std::fs::read_dir(e)?;
@@ -103,7 +104,7 @@ fn enumerate(
 fn main() {
 	let args: Vec<String> = std::env::args().collect();
 	if args.len() < 2 {
-		println!("path?");
+		println!("PATH?");
 		return;
 	}
 
