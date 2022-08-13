@@ -13,6 +13,36 @@ fn generate_new_name() -> String {
 	return uuid.hyphenated().to_string();
 }
 
+/// 標準入力から一行の入力を得ます。
+///
+/// # Returns
+/// 入力(改行の手前まで)
+fn input() -> String {
+	let mut line = String::new();
+	let ret = std::io::stdin().read_line(&mut line);
+	if ret.is_err() {
+		println!("[ERROR] {}", ret.err().unwrap());
+		return String::new();
+	}
+	if ret.unwrap() == 0 {
+		return String::new();
+	}
+	return (*line.trim()).to_string();
+}
+
+/// 確認
+fn confirm_rename(left: &Path, right: &Path) -> bool {
+	println!("CONTINUE? {:?} >> {:?}", &left, &right);
+	let line = input().to_uppercase();
+	if line == "Y" {
+		return true;
+	}
+	if line == "YES" {
+		return true;
+	}
+	return false;
+}
+
 /// ファイルハンドラーの定義
 ///
 /// # Arguments
@@ -34,6 +64,10 @@ fn on_file_found(e: &Path) -> Result<(), Box<dyn std::error::Error>> {
 
 	let new_path = parent.join(&name).with_extension(ext);
 	println!("{}", new_path.as_os_str().to_str().unwrap());
+
+	if !confirm_rename(&e, &new_path) {
+		return Ok(());
+	}
 
 	std::fs::rename(e, new_path)?;
 
