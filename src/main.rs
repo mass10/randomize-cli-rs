@@ -1,28 +1,35 @@
 extern crate uuid;
 
-use std::path::Path;
 use std::ffi::OsStr;
+use std::path::Path;
 use uuid::Uuid;
-use std::io::Result;
 
+/// 新しい名前を生成します。
+/// 
+/// # Returns
+/// 文字列
 fn generate_new_name() -> String {
-
 	let uuid = Uuid::new_v4();
 	return uuid.hyphenated().to_string();
 }
 
-fn on_file_found(e: &Path) -> Result<()> {
-
+/// ファイルハンドラーの定義
+///
+/// # Arguments
+/// * `e` ファイルのパス
+fn on_file_found(e: &Path) -> Result<(), Box<dyn std::error::Error>> {
 	let parent = match e.parent() {
 		Some(d) => d,
-		None => Path::new("")
+		None => Path::new(""),
 	};
 
+	// 新しい名前
 	let name = generate_new_name();
 
+	// もとの拡張子
 	let ext = match e.extension() {
 		Some(s) => s,
-		None => OsStr::new("")
+		None => OsStr::new(""),
 	};
 
 	let new_path = parent.join(&name).with_extension(ext);
@@ -33,29 +40,30 @@ fn on_file_found(e: &Path) -> Result<()> {
 	return Ok(());
 }
 
-#[allow(unused)]
-fn enumerate(e: &Path, handler: &Fn(&Path) -> Result<()>) -> Result<()> {
-
+/// ディレクトリ走査
+/// 
+/// # Arguments
+/// * `e` パス
+/// * `handler` ファイルハンドラー
+fn enumerate(e: &Path, handler: &dyn Fn(&Path) -> Result<(), Box<dyn std::error::Error>>) -> Result<(), Box<dyn std::error::Error>> {
 	if !e.exists() {
 		println!("[TRACE] invalid path {}", e.to_str().unwrap());
 		return Ok(());
-	}
-	else if e.is_dir() {
+	} else if e.is_dir() {
 		let it = std::fs::read_dir(e)?;
 		for e in it {
 			let entry = e.unwrap();
 			let path = entry.path();
-			enumerate(&path, handler);
+			enumerate(&path, handler)?;
 		}
 		return Ok(());
-	}
-	else {
+	} else {
 		return handler(e);
 	}
 }
 
+/// Rust アプリケーションのエントリーポイント
 fn main() {
-
 	let args: Vec<String> = std::env::args().collect();
 	if args.len() < 2 {
 		println!("path?");
