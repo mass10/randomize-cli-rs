@@ -5,7 +5,7 @@ use std::path::Path;
 use uuid::Uuid;
 
 /// 新しい名前を生成します。
-/// 
+///
 /// # Returns
 /// 文字列
 fn generate_new_name() -> String {
@@ -41,11 +41,14 @@ fn on_file_found(e: &Path) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// ディレクトリ走査
-/// 
+///
 /// # Arguments
 /// * `e` パス
 /// * `handler` ファイルハンドラー
-fn enumerate(e: &Path, handler: &dyn Fn(&Path) -> Result<(), Box<dyn std::error::Error>>) -> Result<(), Box<dyn std::error::Error>> {
+fn enumerate(
+	e: &Path,
+	handler: &dyn Fn(&Path) -> Result<(), Box<dyn std::error::Error>>,
+) -> Result<(), Box<dyn std::error::Error>> {
 	if !e.exists() {
 		println!("[TRACE] invalid path {}", e.to_str().unwrap());
 		return Ok(());
