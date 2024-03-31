@@ -1,5 +1,5 @@
-# randomize by rust
-
+# About
+　Randomize file names. CLI utility.
 
 # Getting Started
 
