@@ -4,7 +4,7 @@
 # Getting Started
 
 ```sh
-cargo install --git https://github.com/mass10/randomize-by-rust --branch master
+cargo install --git https://github.com/mass10/randomize-cli-rs --branch master
 ```
 
 ```sh
